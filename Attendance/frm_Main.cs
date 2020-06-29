@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Attendance
@@ -287,12 +288,14 @@ namespace Attendance
         {
             Directory.CreateDirectory("C:\\AttendanceDownloads");
             var directory = new DirectoryInfo("C:\\AttendanceDownloads");
-  
+
+            if (directory.GetFiles().Length == 0) return;
+
             var myFile = directory.GetFiles()
                          .OrderByDescending(f => f.LastWriteTime)
                          .First();
 
-            Rep.PullFromFile(myFile.FullName);
+             Rep.PullFromFile(myFile.FullName);
         }
 
         private void tsm_GeneralSettings_Click(object sender, EventArgs e)
