@@ -1,0 +1,2 @@
+﻿ALTER TABLE Sys ADD COLUMN AutoPullFromFile bit default 0;
+ALTER TABLE Sys ADD COLUMN AutoPullFromFileTimer INTEGER default 30;
