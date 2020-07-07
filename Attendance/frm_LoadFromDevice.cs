@@ -66,6 +66,27 @@ namespace Attendance
                 }
             }
         }
+
+        void Excute(int RowIndex)
+        {
+            objZkeeper = new ZkemClient(RaiseDeviceEvent);
+
+            string ip = ""; int port = 0;
+            if(!string.IsNullOrEmpty(dgv.Rows[RowIndex].Cells["ip"].Value.ToString()))
+            {
+                ip = dgv.Rows[RowIndex].Cells["ip"].Value.ToString();
+            }
+            if(!string.IsNullOrEmpty(dgv.Rows[RowIndex].Cells["port"].Value.ToString()))
+            {
+                port = Convert.ToInt32(dgv.Rows[RowIndex].Cells["port"].Value);
+            }
+            if (string.IsNullOrEmpty(ip) || port == 0) return;
+
+            IsDeviceConnected = objZkeeper.Connect_Net(ip, port);
+
+            Rep.LoadFromDevice(manipulator.GetLogData(objZkeeper, int.Parse("1")));
+            Hide();
+        }
         #endregion
 
         private void frm_LoadFromDevice_Shown(object sender, EventArgs e)
@@ -75,20 +96,19 @@ namespace Attendance
                 dgv.Rows.Add(r["id2"], r["name"], r["ip"], r["port"], "Import");
             }
         }
-
         private void dgv_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == dgv.Columns.Count - 1)
             {
-                objZkeeper = new ZkemClient(RaiseDeviceEvent);
+                Excute(e.RowIndex);
+            }
+        }
 
-                string ip = dgv.Rows[e.RowIndex].Cells["ip"].Value.ToString();
-                int port = Convert.ToInt32(dgv.Rows[e.RowIndex].Cells["port"].Value);
-
-                IsDeviceConnected = objZkeeper.Connect_Net(ip, port);
-
-                Rep.LoadFromDevice(manipulator.GetLogData(objZkeeper, int.Parse("1")));
-                Hide();
+        private void btn_ImportFromAll_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                Excute(row.Index);
             }
         }
     }

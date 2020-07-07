@@ -2,7 +2,6 @@
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Attendance
@@ -27,6 +26,7 @@ namespace Attendance
             User_ID = (User_ID == 0) ? 1 : User_ID;
             OnLoad(null);
         }
+
         #region Pro
         void CheckPullFromFile()
         {
@@ -39,6 +39,7 @@ namespace Attendance
             tim_PullFromFile.Interval = Convert.ToInt32(dt_Result.Rows[0]["AutoPullFromFileTimer"]) * 1000;
         }
         #endregion
+
         #region Form
         protected override void OnLoad(EventArgs e)
         {
@@ -283,7 +284,6 @@ namespace Attendance
         {
             btn_FromFile_Click(null, null);
         }
-
         private void tim_PullFromFile_Tick(object sender, EventArgs e)
         {
             Directory.CreateDirectory("C:\\AttendanceDownloads");
@@ -296,8 +296,9 @@ namespace Attendance
                          .First();
 
              Rep.PullFromFile(myFile.FullName);
-        }
 
+
+        }
         private void tsm_GeneralSettings_Click(object sender, EventArgs e)
         {
             frm_GeneralSettings f = new frm_GeneralSettings();

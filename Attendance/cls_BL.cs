@@ -2,17 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.OleDb;
 using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using zkemkeeper;
-using Attendance.Utilities;
 using Attendance.Info;
 
 namespace Attendance
@@ -778,6 +774,14 @@ namespace Attendance
             #endregion
 
             #region Pro
+            public DateTime ToDateTime(object txt)
+            {
+                DateTime newDate = System.DateTime.ParseExact(
+                    txt.ToString(),
+                    "yyyy-MM-dd HH-mm-ss",
+                    CultureInfo.InvariantCulture);
+                return newDate;
+            }
             public DataTable EventCol()
             {
                 DataTable dt = new DataTable();
@@ -1288,13 +1292,7 @@ namespace Attendance
                 }
                 return s;
             }
-            string DateParse(string date)
-            {
-                //DateTime dt12 = DateTime.ParseExact("44", "dd/MM/yyyy", null);
-                return date;
-            }
             #endregion
-
 
             public int Select_Cout()
             {
@@ -1333,7 +1331,7 @@ namespace Attendance
                 if (F == null)
                 {
                     Abort_Waiting();
-                    MessageBox.Show("تم إستيراد البيانات بنجاح", "إستيراد من ملف", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //MessageBox.Show("تم إستيراد البيانات بنجاح", "إستيراد من ملف", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 DAL.Close();
@@ -1463,8 +1461,6 @@ namespace Attendance
                 return lstEnrollData;
             }
 
-
-
             public string Update(string Index, string DateTime, int Event, string Device_ID)
             {
                 cls_DAL DAL = new cls_DAL();
@@ -1523,16 +1519,17 @@ namespace Attendance
 
                 //DateTime dt12 = DateTime.ParseExact("44", "dd/MM/yyyy", null);
 
-                string LastDate = (IO.Rows.Count>0)?Convert.ToDateTime(IO.Rows[0]["TTime"]).ToString("yyyy-MM-dd"):"";
+                string LastDate = (IO.Rows.Count>0)?ToDateTime(IO.Rows[0]["TTime"]).ToString("yyyy-MM-dd"):"";
+          
                 foreach (DataRow r in IO.Rows)
                 {
-                    CurrentDate = Convert.ToDateTime(r["TTime"]).ToString("yyyy-MM-dd");
+                    CurrentDate = ToDateTime(r["TTime"]).ToString("yyyy-MM-dd");
                     if (CurrentDate != LastDate)
                     {
                         dt_IO.Rows.Add();                      
-                        LastDate = Convert.ToDateTime(r["TTime"]).ToString("yyyy-MM-dd");
+                        LastDate = ToDateTime(r["TTime"]).ToString("yyyy-MM-dd");
                     }             
-                    dt_IO.Rows.Add(r["Index"].ToString(), Convert.ToDateTime(r["TTime"]).ToString("yyyy-MM-dd  hh:mm:ss tt"), 0, r["Device_ID"], r["Priority"], r["Deleted"], "تعديل");   
+                    dt_IO.Rows.Add(r["Index"].ToString(), ToDateTime(r["TTime"]).ToString("yyyy-MM-dd  hh:mm:ss tt"), 0, r["Device_ID"], r["Priority"], r["Deleted"], "تعديل");   
                 }
                 if(dt_IO.Rows.Count ==0) dt_IO.Rows.Add();
                 return dt_IO;
@@ -1628,14 +1625,19 @@ namespace Attendance
                     DateTime de = Convert.ToDateTime(y).AddHours(Day_Hours);
                     de = de.AddMinutes(Day_Min); //  نهاية تاريخ الصف
 
+
+
                     for (int p = 0; p < dt_IO.Rows.Count; p++) // IO Loop2
                     {
                         #region Preparing
-                        string io_day = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString("dddd"); // يوم الحركة
-                        string x = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString("yyyy-MM-dd"); // تاريخ الحركة
-                        DateTime m = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]); // تاريخ ووقت الحركة
+                        string io_day = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString("dddd"); // يوم الحركة
+
+
+
+                        string x = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString("yyyy-MM-dd"); // تاريخ الحركة
+                        DateTime m = ToDateTime(dt_IO.Rows[p]["TTime"]); // تاريخ ووقت الحركة
                         int m_action = m.Hour;
-                        m_action = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? m_action : m_action + 24;
+                        m_action = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? m_action : m_action + 24;
 
                         int fs = Convert.ToDateTime(WS_start(io_day, dt_WS)).Hour;
                         int fe = Convert.ToDateTime(WS_end(io_day, dt_WS)).Hour;
@@ -1644,7 +1646,7 @@ namespace Attendance
 
                         if (m_action >= 24)
                         {
-                            string io_prevday = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).AddDays(-1).ToString("dddd"); // اليوم السابق
+                            string io_prevday = ToDateTime(dt_IO.Rows[p]["TTime"]).AddDays(-1).ToString("dddd"); // اليوم السابق
                             fs = Convert.ToDateTime(WS_start(io_prevday, dt_WS)).Hour;
                             fe = Convert.ToDateTime(WS_end(io_prevday, dt_WS)).Hour;
                             ss = Convert.ToDateTime(WS_start2(io_prevday, dt_WS)).Hour;
@@ -1686,7 +1688,7 @@ namespace Attendance
                             {
                                 if (dt_att.Rows[i]["حضور دوام 1"].ToString() == "") // إذا كان لا يوجد حضور
                                 {
-                                    dt_att.Rows[i]["حضور دوام 1"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sh);
+                                    dt_att.Rows[i]["حضور دوام 1"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sh);
 
                                     #region حضور مبكر و تأخير       
                                     string start1 = WS_start(io_day, dt_WS);
@@ -1731,8 +1733,8 @@ namespace Attendance
                                 //if (dt_att.Rows[i]["حضور دوام 1"].ToString() == "") continue;
                                 if (dt_att.Rows[i]["إنصراف دوام 1"].ToString() != "" && ignore_l1 == true) continue;
 
-                                string s = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
-                                dt_att.Rows[i]["إنصراف دوام 1"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
+                                string s = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
+                                dt_att.Rows[i]["إنصراف دوام 1"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
 
                                 ignore_l1 = Convert.ToBoolean(dt_IO.Rows[p]["Priority"]);
 
@@ -1777,10 +1779,10 @@ namespace Attendance
                             #region حضور دوام 2
                             else if (dt_IO.Rows[p][2].ToString() == "0" && m_action >= Second_as && m_action <= Second_ae && x == y) // حضور دوام 2
                             {
-                                string s = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
+                                string s = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
                                 if (dt_att.Rows[i]["حضور دوام 2"].ToString() == "") // إذا كان لا يوجد حضور
                                 {
-                                    dt_att.Rows[i]["حضور دوام 2"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
+                                    dt_att.Rows[i]["حضور دوام 2"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
 
                                     #region حضور مبكر و تأخير
                                     string start2 = WS_start2(io_day, dt_WS);
@@ -1825,8 +1827,8 @@ namespace Attendance
                                 if (dt_att.Rows[i]["حضور دوام 2"].ToString() == "") continue;
                                 if (dt_att.Rows[i]["إنصراف دوام 2"].ToString() != "" && ignore_l2 == true) continue;
 
-                                string s = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
-                                dt_att.Rows[i]["إنصراف دوام 2"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
+                                string s = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
+                                dt_att.Rows[i]["إنصراف دوام 2"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
 
                                 ignore_l2 = Convert.ToBoolean(dt_IO.Rows[p]["Priority"]);
 
@@ -1873,7 +1875,7 @@ namespace Attendance
                             {
                                 if (dt_att.Rows[i]["حضور دوام 1"].ToString() == "") // إذا كان لا يوجد حضور
                                 {
-                                    dt_att.Rows[i]["حضور دوام 1"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sh);
+                                    dt_att.Rows[i]["حضور دوام 1"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sh);
 
                                     #region حضور مبكر و تأخير
                                     if (Fixed(io_day, dt_WS) == false) // إذا كان نظام ثابت
@@ -1921,8 +1923,8 @@ namespace Attendance
                                 if (dt_att.Rows[i]["حضور دوام 1"].ToString() == "") continue;
                                 if (dt_att.Rows[i]["إنصراف دوام 1"].ToString() != "" && ignore_l1 == true) continue;
 
-                                string s = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
-                                dt_att.Rows[i]["إنصراف دوام 1"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
+                                string s = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
+                                dt_att.Rows[i]["إنصراف دوام 1"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
 
                                 ignore_l1 = Convert.ToBoolean(dt_IO.Rows[p]["Priority"]);
 
@@ -1971,8 +1973,8 @@ namespace Attendance
                             #region حضور دوام 2
                             else if (dt_IO.Rows[p][2].ToString() == "2" && x == y) // حضور دوام 2
                             {
-                                string s = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
-                                dt_att.Rows[i]["حضور دوام 2"] = (dt_att.Rows[i]["حضور دوام 2"].ToString() == "") ? Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s) : dt_att.Rows[i]["حضور دوام 2"].ToString();
+                                string s = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
+                                dt_att.Rows[i]["حضور دوام 2"] = (dt_att.Rows[i]["حضور دوام 2"].ToString() == "") ? ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s) : dt_att.Rows[i]["حضور دوام 2"].ToString();
 
                                 #region حضور مبكر و تأخير
                                 string start2 = WS_start2(io_day, dt_WS);
@@ -2017,8 +2019,8 @@ namespace Attendance
                                 if (dt_att.Rows[i]["حضور دوام 2"].ToString() == "") continue;
                                 if (dt_att.Rows[i]["إنصراف دوام 2"].ToString() != "" && ignore_l2 == true) continue;
 
-                                string s = (Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
-                                dt_att.Rows[i]["إنصراف دوام 2"] = Convert.ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
+                                string s = (ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(sd) == y) ? sh : l;
+                                dt_att.Rows[i]["إنصراف دوام 2"] = ToDateTime(dt_IO.Rows[p]["TTime"]).ToString(s);
 
                                 ignore_l2 = Convert.ToBoolean(dt_IO.Rows[p]["Priority"]);
 

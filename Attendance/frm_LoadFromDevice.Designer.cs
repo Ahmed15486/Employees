@@ -37,12 +37,15 @@
             this.ip = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.port = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btn = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.btn_ImportFromAll = new System.Windows.Forms.Button();
+            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btn_ImportFromAll);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
@@ -111,6 +114,16 @@
             this.btn.Name = "btn";
             this.btn.ReadOnly = true;
             // 
+            // btn_ImportFromAll
+            // 
+            this.btn_ImportFromAll.Location = new System.Drawing.Point(251, 28);
+            this.btn_ImportFromAll.Name = "btn_ImportFromAll";
+            this.btn_ImportFromAll.Size = new System.Drawing.Size(100, 52);
+            this.btn_ImportFromAll.TabIndex = 0;
+            this.btn_ImportFromAll.Text = "Import From All";
+            this.btn_ImportFromAll.UseVisualStyleBackColor = true;
+            this.btn_ImportFromAll.Click += new System.EventHandler(this.btn_ImportFromAll_Click);
+            // 
             // frm_LoadFromDevice
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -125,6 +138,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "إستيراد من جهاز";
             this.Shown += new System.EventHandler(this.frm_LoadFromDevice_Shown);
+            this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).EndInit();
             this.ResumeLayout(false);
@@ -140,5 +154,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ip;
         private System.Windows.Forms.DataGridViewTextBoxColumn port;
         private System.Windows.Forms.DataGridViewButtonColumn btn;
+        private System.Windows.Forms.Button btn_ImportFromAll;
     }
 }
